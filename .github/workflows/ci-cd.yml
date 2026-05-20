@@ -3,7 +3,7 @@ name: AI Video Generation CI/CD Pipeline
 on:
   push:
     branches:
-      - dev-2
+      - main
 
 jobs:
   ci-cd:
