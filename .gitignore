@@ -1,0 +1,122 @@
+
+env
+
+# ======================
+# Python / Django
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.sqlite3
+db.sqlite3
+*.log
+.env
+.env.*
+backend/db.sqlite3
+
+# Virtual Environment
+env/
+venv/
+ENV/
+.venv/
+
+# Django Static / Media
+staticfiles/
+media/
+
+# Runtime Generated Audio/Video
+backend/audio/audio/
+backend/audio/avatars/
+backend/audio/voice_samples/
+backend/media/
+
+# ======================
+# ML / AI Files
+# ======================
+ml_pipeline/data/raw/
+ml_pipeline/data/processed/
+ml_pipeline/data/interim/
+
+ml_pipeline/models/checkpoints/
+ml_pipeline/models/weights/
+ml_pipeline/models/onnx/
+
+*.h5
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# Generated Outputs
+*.mp4
+*.avi
+*.mov
+*.wav
+*.mp3
+*.png
+*.jpg
+*.jpeg
+
+# ======================
+# Node / React
+# ======================
+node_modules/
+build/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ======================
+# OS Files
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# IDE / Editor
+# ======================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ======================
+# Logs / Temp / Cache
+# ======================
+logs/
+*.tmp
+*.temp
+.cache/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ======================
+# Docker
+# ======================
+docker-compose.override.yml
+
+# ======================
+# AWS / Secrets
+# ======================
+*.pem
+*.key
+*.crt
+
+# ======================
+# Coverage
+# ======================
+coverage/
+
+htmlcov/
+.cache/
+
+# audio files
+*.mp3
+audio/
+=======
+htmlcov/
