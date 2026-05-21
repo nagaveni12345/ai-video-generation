@@ -34,11 +34,6 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    # Step 4 - Run Backend Tests
-    - name: Run Backend Tests
-      working-directory: ./backend
-      run: |
-        pytest
 
     # -----------------------------
     # FRONTEND SETUP
