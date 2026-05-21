@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import videoFile from '../../assets/sign in video.mp4';
 
 import sparkleImage from '../../assets/Icons/sparkle.png';
 import chromeImage from '../../assets/Icons/Chrome icon.png';
@@ -8,7 +7,7 @@ import rightArrowIcon from '../../assets/Icons/Right arrow icon.png';
 import mailImage from '../../assets/Icons/Mail icon.png';
 import lockImage from '../../assets/Icons/Lock icon.png';
 import eyeImage from '../../assets/Icons/Eye icon.png';
-import alertImage from '../../assets/Icons/Alert icon.png';
+import alertImage from '../../assets/Icons/Alert icon.png'
 
 const SparkleIcon = () => (
   <img src={sparkleImage} alt="Sparkle" className="w-full h-full object-contain" />
