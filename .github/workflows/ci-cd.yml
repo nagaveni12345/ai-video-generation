@@ -1,110 +1,72 @@
-name: AI Video Generation CI/CD Pipeline
+name: Full Stack CI Pipeline
 
 on:
   push:
     branches:
       - main
+      - develop
+
+  pull_request:
 
 jobs:
-  ci-cd:
+  ci-test:
     runs-on: ubuntu-latest
 
     steps:
 
-    # =========================
-    # STEP 1 — Checkout Code
-    # =========================
-    - name: Checkout Repository
+    # Step 1 - Checkout Repository
+    - name: Checkout Code
       uses: actions/checkout@v4
 
-    # =========================
-    # STEP 2 — Setup Python
-    # =========================
+    # -----------------------------
+    # BACKEND SETUP
+    # -----------------------------
+
+    # Step 2 - Setup Python
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: '3.10'
 
-    # =========================
-    # STEP 3 — Install Backend Dependencies
-    # =========================
+    # Step 3 - Install Backend Dependencies
     - name: Install Backend Dependencies
+      working-directory: ./backend
       run: |
-        python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # =========================
-    # STEP 4 — Run Backend Tests
-    # =========================
+    # Step 4 - Run Backend Tests
     - name: Run Backend Tests
+      working-directory: ./backend
       run: |
         pytest
 
-    # =========================
-    # STEP 5 — Setup Node.js
-    # =========================
+    # -----------------------------
+    # FRONTEND SETUP
+    # -----------------------------
+
+    # Step 5 - Setup Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: "20"
+        node-version: '20'
 
-    # =========================
-    # STEP 6 — Install Frontend Dependencies
-    # =========================
+    # Step 6 - Install Frontend Dependencies
     - name: Install Frontend Dependencies
-      working-directory: frontend
-      run: npm install
+      working-directory: ./frontend
+      run: |
+        npm install
 
-    # =========================
-    # STEP 7 — Build Frontend
-    # =========================
+    # Step 7 - Build Frontend
     - name: Build Frontend
-      working-directory: frontend
-      run: npm run build
-
-    # =========================
-    # STEP 8 — Docker Login
-    # =========================
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    # =========================
-    # STEP 9 — Setup Docker Buildx
-    # =========================
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    # =========================
-    # STEP 10 — Build Backend Docker Image
-    # =========================
-    - name: Build Backend Image
+      working-directory: ./frontend
       run: |
-        docker build \
-        -f infra/Dockerfile.backend \
-        -t ${{ secrets.DOCKER_USERNAME }}/ai-backend:latest .
+        npm run build
 
-    # =========================
-    # STEP 11 — Push Backend Docker Image
-    # =========================
-    - name: Push Backend Image
-      run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/ai-backend:latest
+    # -----------------------------
+    # DOCKER VALIDATION
+    # -----------------------------
 
-    # =========================
-    # STEP 12 — Build Frontend Docker Image
-    # =========================
-    - name: Build Frontend Image
+    # Step 8 - Build Docker Containers
+    - name: Docker Compose Build
       run: |
-        docker build \
-        -f infra/Dockerfile.frontend \
-        -t ${{ secrets.DOCKER_USERNAME }}/ai-frontend:latest .
-
-    # =========================
-    # STEP 13 — Push Frontend Docker Image
-    # =========================
-    - name: Push Frontend Image
-      run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/ai-frontend:latest
+        docker compose build
