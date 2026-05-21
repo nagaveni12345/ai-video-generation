@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import videoFile from '../../assets/sign in video.mp4';
 
 import sparkleImage from '../../assets/Icons/sparkle.png';
+import blackSparkleImage from '../../assets/Icons/Black Sparkle.png';
 import chromeImage from '../../assets/Icons/Chrome icon.png';
 import appleImage from '../../assets/Icons/Apple icon.png';
 import rightArrowIcon from '../../assets/Icons/Right arrow icon.png';
 import mailImage from '../../assets/Icons/Mail icon.png';
 import lockImage from '../../assets/Icons/Lock icon.png';
 import eyeImage from '../../assets/Icons/Eye icon.png';
-import alertImage from '../../assets/Icons/Alert icon.png'
+import alertImage from '../../assets/Icons/Alert icon.png';
 
 const SparkleIcon = () => (
   <img src={sparkleImage} alt="Sparkle" className="w-full h-full object-contain" />
@@ -30,7 +32,16 @@ const LockIcon = () => (
 );
 
 const EyeIcon = () => (
-  <img src={eyeImage} alt="Eye" className="w-full h-full object-contain" />
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
 );
 
 const ArrowRightIcon = () => (
@@ -51,25 +62,68 @@ const SignIn = ({ setActive }) => {
   const [errors, setErrors] = useState({ email: false, password: false });
   const [authError, setAuthError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    const savedPassword = localStorage.getItem('rememberedPassword');
+    if (savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
 
   const handleSignIn = (e) => {
     e.preventDefault();
+    
+    const emailEmpty = email.trim() === '';
+    const passwordEmpty = password.trim() === '';
+    const emailInvalid = !validateEmail(email) && !emailEmpty;
+    const passwordInvalid = password.length < 8 && !passwordEmpty;
+
     const newErrors = {
-      email: email.trim() === '',
-      password: password.trim() === ''
+      email: emailEmpty || emailInvalid,
+      password: passwordEmpty || passwordInvalid
     };
+    
     setErrors(newErrors);
     setAuthError(false);
     
     if (!newErrors.email && !newErrors.password) {
-      // Removed hardcoded credential check for testing
-      if (setActive) {
-        setActive('Home');
+      // Mock validation: check for a specific demo account
+      const mockValidEmail = 'validuser@test.com';
+
+      if (email.toLowerCase() === mockValidEmail && (password === 'Password123' || password === 'Password@123')) {
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email);
+          localStorage.setItem('rememberedPassword', password);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+          localStorage.removeItem('rememberedPassword');
+        }
+        localStorage.setItem('isAuthenticated', 'true');
+        if (setActive) {
+          setActive('Home');
+        }
+      } else {
+        // If credentials don't match the mock account, show the auth error
+        setAuthError(true);
       }
     }
   };
+
+  const isFormValid = email.trim() !== '' && validateEmail(email) && password.length >= 8;
   return (
-    <div className="relative flex w-full min-h-screen bg-black overflow-y-auto overflow-x-hidden font-sans">
+    <div className="relative flex w-full h-screen bg-black overflow-hidden font-sans">
       {/* Left side - Video */}
       <div className="w-1/2 relative overflow-hidden flex items-center justify-center bg-black">
         <video 
@@ -96,17 +150,16 @@ const SignIn = ({ setActive }) => {
       </div>
 
       {/* Right side - Form */}
-      <div className="w-1/2 min-h-full flex items-center justify-center py-10 z-20">
+      <div className="w-1/2 h-full flex items-center justify-center py-10 z-20 overflow-y-auto">
         <div 
           className="bg-[#FFFFFF] flex flex-col items-center justify-start w-full max-w-[551px]"
           style={{ 
-            minHeight: '704px',
             padding: '48px 56px',
             borderRadius: '40px',
           }}
         >
           
-          <div className="flex flex-col items-center mb-[32px] w-full">
+          <div className="flex flex-col items-center mb-[16px] w-full">
             <h1 
               className="text-[#000000] flex items-center justify-center whitespace-nowrap"
               style={{
@@ -125,60 +178,60 @@ const SignIn = ({ setActive }) => {
             </h1>
           </div>
           
-          <div className="w-full flex justify-start mb-[20px]">
+          <div className="w-full flex flex-col items-start mb-[32px]" style={{ width: '448px' }}>
             <div 
-              className="flex items-center justify-center gap-[8px] transition-colors"
+              className="flex items-center mb-[4px]"
               style={{
                 width: '125.0625px',
                 height: '30px',
-                opacity: 1,
                 borderRadius: '33554400px',
-                border: '1px solid #BDBDBD'
+                border: '1px solid rgba(0, 0, 0, 0.26)',
+                background: 'rgba(255, 255, 255, 0.06)',
+                display: 'flex',
+                alignItems: 'center',
+                paddingLeft: '13px',
+                gap: '6px'
               }}
             >
-              <span className="w-[14px] h-[14px] flex justify-center items-center text-[#111111]"><SparkleIcon /></span>
+              <img 
+                src={blackSparkleImage} 
+                alt="Sparkle" 
+                style={{ 
+                  width: '14px', 
+                  height: '14px',
+                  opacity: 1
+                }} 
+              />
               <span 
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '12px',
-                  fontWeight: 400,
+                style={{ 
+                  width: '83px',
+                  height: '16px',
+                  fontFamily: 'Inter, sans-serif', 
+                  fontSize: '12px', 
+                  fontWeight: 400, 
+                  color: 'rgba(0, 0, 0, 1)',
                   lineHeight: '16px',
-                  color: '#1F2937',
-                  letterSpacing: '0px'
+                  letterSpacing: '0px',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 Welcome back
               </span>
             </div>
-          </div>
-          
-          <div className="w-full text-left mb-[32px]">
             <h2 
-              className="mb-[14px] text-[#000000] whitespace-nowrap"
+              className="text-[#000000] whitespace-nowrap"
               style={{
-                width: '448px',
-                height: '40px',
-                opacity: 1,
-                top: '46px',
                 fontFamily: 'Inter, sans-serif',
-                marginBottom: '10px',
                 fontSize: '36px',
                 fontWeight: 900,
                 lineHeight: '40px',
-                letterSpacing: '0px'
+                letterSpacing: '0px',
+                marginBottom: '4px'
               }}
             >
               Sign in
             </h2>
-            <div 
-              className="flex flex-row items-center justify-start gap-[4px]"
-              style={{
-                width: '448px',
-                height: '24px',
-                opacity: 1,
-                top: '94px'
-              }}
-            >
+            <div className="flex flex-row items-center justify-start gap-[4px]">
               <span 
                 style={{
                   fontFamily: 'Inter, sans-serif',
@@ -356,7 +409,7 @@ const SignIn = ({ setActive }) => {
                   color: 'rgba(153, 161, 175, 1)'
                 }}
               >
-                Email address
+                Email address <span style={{ color: '#EF4444' }}>*</span>
               </label>
               <div className="relative flex items-center" style={{ width: '448px', height: '50px' }}>
                 <div 
@@ -405,14 +458,15 @@ const SignIn = ({ setActive }) => {
               {errors.email && (
                 <div 
                   className="flex items-center" 
-                  style={{ width: '195px', height: '17px', gap: '12px', marginTop: '6px', opacity: 1 }}
+                  style={{ width: '100%', height: '17px', gap: '12px', marginTop: '6px', opacity: 1 }}
                 >
                   <div style={{ width: '17px', height: '17px', opacity: 1 }}>
                     <ErrorIcon />
                   </div>
                   <span 
                     style={{ 
-                      width: '166px', 
+                      width: 'auto', 
+                      whiteSpace: 'nowrap',
                       height: '17px', 
                       fontFamily: 'Inter', 
                       fontWeight: 400, 
@@ -423,7 +477,7 @@ const SignIn = ({ setActive }) => {
                       alignItems: 'center'
                     }}
                   >
-                    Enter your email
+                    {email.trim() === '' ? 'Enter your email' : 'Please enter a valid email'}
                   </span>
                 </div>
               )}
@@ -437,7 +491,7 @@ const SignIn = ({ setActive }) => {
                 <label 
                   className="" 
                   style={{ 
-                    width: '59.5625px', 
+                    width: 'auto', 
                     height: '20px', 
                     opacity: 1,
                     fontFamily: 'Inter, sans-serif',
@@ -447,10 +501,15 @@ const SignIn = ({ setActive }) => {
                     color: 'rgba(153, 161, 175, 1)'
                   }}
                 >
-                  Password
+                  Password <span style={{ color: '#EF4444' }}>*</span>
                 </label>
-                <button 
-                  type="button" 
+                <span 
+                  role="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (setActive) setActive('ForgotPassword');
+                  }}
                   className="hover:text-[#000000] transition-colors cursor-pointer whitespace-nowrap"
                   style={{ 
                     height: '16px', 
@@ -464,7 +523,7 @@ const SignIn = ({ setActive }) => {
                   }}
                 >
                   Forgot password?
-                </button>
+                </span>
               </div>
               <div className="relative flex items-center" style={{ width: '448px', height: '50px' }}>
                 <div 
@@ -514,29 +573,29 @@ const SignIn = ({ setActive }) => {
                   onClick={() => setShowPassword(!showPassword)}
                   className={`absolute transition-colors flex items-center justify-center`}
                   style={{ 
-                    width: '16px', 
-                    height: '16px', 
-                    opacity: showPassword ? 1 : 0.6, 
+                    width: '18px', 
+                    height: '18px', 
                     top: '17px', 
                     left: '415px', 
                     zIndex: 10,
-                    color: errors.password ? '#FF3B30' : 'rgba(106, 114, 130, 1)'
+                    color: errors.password ? '#FF3B30' : (showPassword ? '#000000' : 'rgba(106, 114, 130, 0.6)')
                   }}
                 >
-                  <EyeIcon />
+                  {showPassword ? <EyeIcon /> : <EyeOffIcon />}
                 </button>
               </div>
               {errors.password && (
                 <div 
                   className="flex items-center" 
-                  style={{ width: '195px', height: '17px', gap: '12px', marginTop: '6px', opacity: 1 }}
+                  style={{ width: '100%', height: '17px', gap: '12px', marginTop: '6px', opacity: 1 }}
                 >
                   <div style={{ width: '17px', height: '17px', opacity: 1 }}>
                     <ErrorIcon />
                   </div>
                   <span 
                     style={{ 
-                      width: '166px', 
+                      width: 'auto', 
+                      whiteSpace: 'nowrap',
                       height: '17px', 
                       fontFamily: 'Inter', 
                       fontWeight: 400, 
@@ -547,7 +606,7 @@ const SignIn = ({ setActive }) => {
                       alignItems: 'center'
                     }}
                   >
-                    Enter your password
+                    {password.trim() === '' ? 'Enter your password' : 'Password must be at least 8 characters'}
                   </span>
                 </div>
               )}
@@ -558,6 +617,8 @@ const SignIn = ({ setActive }) => {
                 <input 
                   id="remember" 
                   type="checkbox" 
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="peer appearance-none w-[16px] h-[16px] rounded-none bg-white checked:bg-[#000000] checked:border-[#000000] focus:ring-1 focus:ring-[#000000] focus:outline-none cursor-pointer transition-colors"
                   style={{ border: '1px solid rgba(0, 0, 0, 0.3)' }}
                 />
@@ -585,8 +646,9 @@ const SignIn = ({ setActive }) => {
 
             <button 
               type="submit" 
-              className="bg-[#000000] hover:bg-gray-800 text-[#FFFFFF] rounded-[14px] text-[15px] font-medium transition-all duration-200 mb-[14px] relative"
-              style={{ width: '448px', height: '56px', opacity: 1 }}
+              disabled={!isFormValid}
+              className={`bg-[#000000] text-[#FFFFFF] rounded-[14px] text-[15px] font-medium transition-all duration-200 mb-[14px] relative ${!isFormValid ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'}`}
+              style={{ width: '448px', height: '56px' }}
             >
               <span 
                 className="absolute flex items-center justify-center whitespace-nowrap" 
