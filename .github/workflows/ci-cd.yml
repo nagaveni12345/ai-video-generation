@@ -1,6 +1,7 @@
 name: AI Video Generation CI/CD Pipeline
 
 
+
 on:
 push:
 branches:
